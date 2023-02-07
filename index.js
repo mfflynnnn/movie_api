@@ -1,4 +1,5 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const app = express();
 
 let topTenMovies = [
@@ -56,13 +57,60 @@ let myLogger = (req, res, next) => {
 };
 
 app.use(myLogger);
+app.use(bodyParser.json());
 
+//Welcome message/response at root file
 app.get("/", (req, res) => {
   res.send("Welcome to myFlix!");
 });
 
+//Complete list of movies
 app.get("/movies", (req, res) => {
   res.json(topTenMovies);
+});
+
+//Single movie by title
+app.get("/movies/:title", (req, res) => {
+  res.json(
+    topTenMovies.find((movie) => {
+      return movie.title === req.params.title;
+    })
+  );
+});
+
+//Data on single genre by genre name
+app.get("/movies/genres/:genre", (req, res) => {
+  res.json(topTenMovies.genre);
+});
+
+//Data about a director by name
+app.get("/movies/directors/:director", (req, res) => {
+  res.json(topTenMovies.director);
+});
+
+//New user registration
+app.post("/users", (req, res) => {
+  res.send("Congrats, you have registered for a new user account!");
+});
+
+//Updates the username
+app.put("/users/:username", (req, res) => {
+  res.send("Your username has been updated.");
+});
+
+//Adds a movie to the Favorites list
+app.post("/movies/favorites", (req, res) => {
+  res.send("Your favorite movie has been added.");
+});
+
+//Removes a movie from the Favorites list
+app.delete("/movies/favorites/:title", (req, res) => {
+  res.send("A movie has been deleted from your Favorites list.");
+});
+
+//Deregisters the user
+app.delete("/users/:username", (req, res) => {
+  res.send("Your account has been deleted.");
 });
 
 app.use(express.static("public"));
