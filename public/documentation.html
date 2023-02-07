@@ -13,5 +13,144 @@
       update their personal information, and create a list of their favorite
       movies.
     </p>
+    <table>
+      <tr>
+        <th>Business Logic</th>
+        <th>URL</th>
+        <th>HTTP Method</th>
+        <th>Query Parameters</th>
+        <th>Request Body Data Format</th>
+        <th>Response Body Data Format</th>
+      </tr>
+      <tr>
+        <th>List of all movies</th>
+        <th>/movies</th>
+        <th>GET</th>
+        <th>movies</th>
+        <th>None</th>
+        <th>A JSON object holding data about all the movies</th>
+      </tr>
+      <tr>
+        <th>Data about a single movie by title</th>
+        <th>/movies/[title]</th>
+        <th>GET</th>
+        <th>title</th>
+        <th>None</th>
+        <th>
+          A JSON object holding data about a single movie by title. Example: {
+          title: "Inside Out", director: "Pete Docter", genre: "family
+          animated", image-URL:
+          "https://en.wikipedia.org/wiki/Inside_Out_%282015_film%29#/media/File:Inside_Out_(2015_film)_poster.jpg",
+          featured-film: "Yes"}
+        </th>
+      </tr>
+      <tr>
+        <th>Data about a genre by genre name (e.g., “Thriller”)</th>
+        <th>/movies/genres/[genre]</th>
+        <th>GET</th>
+        <th>genre</th>
+        <th>None</th>
+        <th>
+          A JSON object holding data about a genre by genre name. Example: {
+          genre: "Thriller", description: "Thriller is a genre of fiction with
+          numerous, often overlapping, subgenres, including crime, horror and
+          detective fiction. Thrillers are characterized and defined by the
+          moods they elicit, giving their audiences heightened feelings of
+          suspense, excitement, surprise, anticipation and anxiety." }
+        </th>
+      </tr>
+      <tr>
+        <th>Data about a director by name</th>
+        <th>/movies/directors/[director]</th>
+        <th>GET</th>
+        <th>director</th>
+        <th>None</th>
+        <th>
+          A JSON object holding data about a director by name. Example: {
+          director: "Peter Docter", bio; "Peter Hans Docter (born October 9,
+          1968) is an American animator, film director, screenwriter, producer,
+          voice actor, and chief creative officer of Pixar. He is best known for
+          directing the Pixar animated feature films Monsters, Inc. (2001), Up
+          (2009), Inside Out (2015), and Soul (2020), and as a key figure and
+          collaborator at Pixar. He has been nominated for nine Oscars and has
+          won three for Best Animated Feature—for Up, Inside Out and Soul—making
+          him the first person in history to win the category three times. He
+          has also been nominated for nine Annie Awards (winning six), a BAFTA
+          Children's Film Award and a Hochi Film Award.[4] He has described
+          himself as a 'geeky kid from Minnesota who likes to draw cartoons'.",
+          birth year: "1968", death year: "n/a"}
+        </th>
+      </tr>
+      <tr>
+        <th>Allow new users to register with a username</th>
+        <th>/users</th>
+        <th>POST</th>
+        <th>users</th>
+        <th>
+          A JSON object with the user's selected username, structured like:
+          {username: 'jenique1234'}
+        </th>
+        <th>
+          A text message indicating if the username was successfully registered
+        </th>
+      </tr>
+      <tr>
+        <th>Allow users to update their username</th>
+        <th>/users/[username]</th>
+        <th>PUT</th>
+        <th>username</th>
+        <th>
+          A JSON object with the user's updated username, structured like:
+          {username: 'jenique4321'}
+        </th>
+        <th>
+          A text message indicating if the username was successfully updated
+        </th>
+      </tr>
+      <tr>
+        <th>Allow users to add a movie to their list of favorites</th>
+        <th>/movies/favorites</th>
+        <th>PUSH</th>
+        <th>favorites</th>
+        <th>
+          A JSON object with the favorited movie, structured like: {title:
+          'Inside Out'}
+        </th>
+        <th>
+          A text message indicating that the movie was added to the list of
+          favorites
+        </th>
+      </tr>
+      <tr>
+        <th>Allow users to remove a movie from their list of favorites</th>
+        <th>/movies/favorites/[title]</th>
+        <th>DELETE</th>
+        <th>title</th>
+        <th>
+          A JSON obect with the movie to be removed, structured like: {title:
+          'Eternal Sunshine of the Spotless Mind'}
+        </th>
+        <th>
+          A text message indicating that the movie was removed from the list of
+          favorites
+        </th>
+      </tr>
+      <tr>
+        <th>Allow existing users to deregister</th>
+        <th>/users/[username]</th>
+        <th>DELETE</th>
+        <th>username</th>
+        <th>
+          A JSON object with the username to be deregistered, structured like:
+          {username: 'jenique4321'}
+        </th>
+        <th>A text message indicating that the username was deregistered</th>
+      </tr>
+    </table>
+
+    A high-level description of what kind of data the endpoint returns; The
+    endpoint URL; The method type (GET, POST, PUT, or DELETE); The query
+    parameters (parameters in the URL); The format of data expected in the body
+    of the request (and an example); The format of the response data.
   </body>
 </html>
