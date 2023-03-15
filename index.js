@@ -1,63 +1,19 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-
-let topTenMovies = [
-  { title: "Inside Out", director: "Pete Docter", genre: "family animated" },
-  {
-    title: "Eternal Sunshine of the Spotless Mind",
-    director: "Michel Gondry",
-    genre: "drama",
-  },
-  {
-    title: "Brokeback Mountain",
-    director: "Ang Lee",
-    genre: "neo-Western romantic drama",
-  },
-  {
-    title: "My Beautiful Broken Brain",
-    director: "Sophie Robinson",
-    genre: "documentary",
-  },
-  {
-    title: "Star Trek: Voyager",
-    director: "Rick Berman",
-    genre: "science fiction",
-  },
-  {
-    title: "Everything Everywhere All at Once",
-    director: "Daniel Kwan",
-    genre: "comedy-drama",
-  },
-  {
-    title: "Sense and Sensibility",
-    director: "Ang Lee",
-    genre: "period drama",
-  },
-  {
-    title: "Moonlight",
-    director: "Barry Jenkins",
-    genre: "coming-of-age drama",
-  },
-  {
-    title: "Where the Lilies Bloom",
-    director: "William A Graham",
-    genre: "drama",
-  },
-  {
-    title: "The Sound of Music",
-    director: "Robert Wise",
-    genre: "musical drama",
-  },
-];
-
-let myLogger = (req, res, next) => {
-  console.log(req.url);
-  next();
-};
+const mongoose = require("mongoose");
+const Models = require("./models.js");
+const Movies = Models.Movie;
+const Users = Models.User;
 
 app.use(myLogger);
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect("mongodb://localhost:27017/cfDB", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 //Welcome message/response at root file
 app.get("/", (req, res) => {
@@ -66,41 +22,166 @@ app.get("/", (req, res) => {
 
 //Complete list of movies
 app.get("/movies", (req, res) => {
-  res.json(topTenMovies);
+  Movies.find()
+    .then((movies) => {
+      res.status(201).json(movies);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //Single movie by title
 app.get("/movies/:title", (req, res) => {
-  res.json(
-    topTenMovies.find((movie) => {
-      return movie.title === req.params.title;
+  Movies.findOne({ Title: req.params.Title })
+    .then((movie) => {
+      res.json(movie);
     })
-  );
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //Data on single genre by genre name
 app.get("/movies/genres/:genre", (req, res) => {
-  res.json(topTenMovies.genre);
+  Movies.findOne({ "Genre.Name": req.params.Genre.Name })
+    .then((genre) => {
+      res.json(genre);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //Data about a director by name
 app.get("/movies/directors/:director", (req, res) => {
-  res.json(topTenMovies.director);
+  Movies.findOne({ "Director.Name": req.params.Director.Name })
+    .then((director) => {
+      res.json(director);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //New user registration
+/* Expects JSON in the following format:
+{
+  ID: Integer,
+  Username: String,
+  Password: String,
+  Email: String,
+  Birthday: Date
+}*/
 app.post("/users", (req, res) => {
-  res.send("Congrats, you have registered for a new user account!");
+  Users.findOne({ Username: req.body.Username })
+    .then((user) => {
+      if (user) {
+        return res.status(400).send(req.body.Username + " already exists");
+      } else {
+        Users.create({
+          Username: req.body.Username,
+          Password: req.body.Password,
+          Email: req.body.Email,
+          Birthday: req.body.Birthday,
+        })
+          .then((user) => {
+            res.status(201).json(user);
+          })
+          .catch((err) => {
+            console.error(err);
+            res.send(500).send("Error: " + err);
+          });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
-//Updates the username
+//Updates the user's info, by username
+/*Expects JSON in the following format:
+  Username: String,
+  Password: String,
+  Email: String,
+  Birthday: Date
+}*/
 app.put("/users/:username", (req, res) => {
-  res.send("Your username has been updated.");
+  Users.findOneAndUpdate(
+    { Username: req.params.Username },
+    {
+      $set: {
+        Username: req.body.Username,
+        Password: req.body.Password,
+        Email: req.body.Email,
+        Birthday: req.body.Birthday,
+      },
+    },
+    { new: true }
+  )
+    .then((user) => {
+      res.status(201).json(user);
+    })
+    .catch((err) => {
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //Adds a movie to the Favorites list
+/*Expects JSON in the following format:
+{Title: String,
+  Description: String,
+  Genre: {
+    Name: String,
+    Description: String,
+  },
+  Director: {
+    Name: String,
+    Bio: String,
+  },
+  Actors: [String],
+  ImagePath: String,
+  Featured: Boolean
+}*/
 app.post("/movies/favorites", (req, res) => {
-  res.send("Your favorite movie has been added.");
+  Movies.findOne({ Title: req.body.Title })
+    .then((movie) => {
+      if (movie) {
+        return res.status(400).send(req.body.Title);
+      } else {
+        Movies.create({
+          Title: req.body.Title,
+          Description: req.body.Description,
+          Genre: {
+            Name: req.body.Name,
+            Description: req.body.Description,
+          },
+          Director: {
+            Name: req.body.Name,
+            Bio: req.body.Bio,
+          },
+          Actors: [req.body.Actors],
+          ImagePath: req.body.ImagePath,
+          Featured: req.body.Featured,
+        })
+          .then((movie) => {
+            res.status(201).json(movie);
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).send("Error: " + err);
+          });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //Removes a movie from the Favorites list
